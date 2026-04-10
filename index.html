@@ -8,7 +8,7 @@
 </head>
 <body>
 
-        <main class="container">
+    <main class="container">
         <section class="simulacao-area">
             <canvas id="canvasEvolucao"></canvas>
         </section>
@@ -18,7 +18,7 @@
                 Geração Atual: <span id="gen-count" class="numero-grande">1</span>
             </div>
 
-            <h2>Painel de Controle</h2>
+            <h2>Painel do Professor</h2>
             
             <div class="grupo-controle">
                 <label for="corAmbiente">Cor do Solo (Ambiente)</label>
@@ -34,12 +34,13 @@
 
             <div class="botoes-comando">
                 <button id="btnPausar" class="btn-alerta">Pausar Simulação</button>
+                <button id="btnVelocidade" class="btn-suave" style="background-color: #6366f1;">Velocidade: 1x</button>
                 <button id="btnProximaGen" class="btn-acao">Avançar 1 Geração</button>
                 <button id="btnReiniciar" class="btn-suave">Reiniciar</button>
             </div>
+
         </aside>
     </main>
-
 
     <script src="script.js"></script>
 </body>

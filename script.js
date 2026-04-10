@@ -1,7 +1,13 @@
+/**
+ * SIMULADOR DE EVOLUÇÃO DARWINIANA - script.js
+ * Objetivo: Simular seleção natural baseada em cor, tamanho e formato.
+ */
+
 const canvas = document.getElementById('canvasEvolucao');
 const ctx = canvas.getContext('2d');
 const genDisplay = document.getElementById('gen-count');
 
+// Configurações de escala do Canvas
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
@@ -9,16 +15,23 @@ const centroX = canvas.width / 2;
 const centroY = canvas.height / 2;
 const raioMundo = canvas.width / 2;
 
+// Variáveis de Estado da Simulação
 let populacao = [];
 let predador;
 let geracao = 1;
 let emExecucao = true;
+let velocidadeDupla = false; // <-- NOVA: Controle de velocidade
 const tamanhoPopulacao = 45;
 
+// Elementos de Interface
 const sliderCorAmbiente = document.getElementById('corAmbiente');
 const sliderMutacao = document.getElementById('taxaMutacao');
 const btnPausar = document.getElementById('btnPausar');
+const btnVelocidade = document.getElementById('btnVelocidade'); // <-- NOVO: Referência ao botão
 
+/**
+ * Calcula a diferença entre dois matizes (0-360) considerando a roda de cores.
+ */
 function diferencaCor(dna1, dna2) {
     let diff = Math.abs(dna1 - dna2);
     if (diff > 180) diff = 360 - diff;
@@ -29,16 +42,15 @@ function diferencaCor(dna1, dna2) {
 // DNA MULTI-CARACTERÍSTICA (Presa)
 // ----------------------------------------------------
 class Organismo {
-    // Agora o construtor recebe cor, tamanho e formato
     constructor(x, y, corDna, tamanhoRaio, formato) {
         this.x = x;
         this.y = y;
         this.dna = corDna;
         this.cor = `hsl(${this.dna}, 90%, 50%)`;
-        this.raio = tamanhoRaio; // Tamanho determina se pode ser comido
-        this.formato = formato;  // 'circulo', 'quadrado', 'triangulo'
+        this.raio = tamanhoRaio; 
+        this.formato = formato;  
         
-        // Bichos maiores se movem um pouco mais devagar
+        // Dinâmica: Organismos maiores são levemente mais lentos
         let pesoVelocidade = 30 / this.raio; 
         this.velocidadeX = (Math.random() - 0.5) * pesoVelocidade;
         this.velocidadeY = (Math.random() - 0.5) * pesoVelocidade;
@@ -50,15 +62,14 @@ class Organismo {
         ctx.lineWidth = 3;
         ctx.beginPath();
 
-        // Desenha baseado no gene do formato
         if (this.formato === 'circulo') {
             ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2);
         } else if (this.formato === 'quadrado') {
             ctx.rect(this.x - this.raio, this.y - this.raio, this.raio * 2, this.raio * 2);
         } else if (this.formato === 'triangulo') {
-            ctx.moveTo(this.x, this.y - this.raio); // Topo
-            ctx.lineTo(this.x + this.raio, this.y + this.raio); // Baixo Direita
-            ctx.lineTo(this.x - this.raio, this.y + this.raio); // Baixo Esquerda
+            ctx.moveTo(this.x, this.y - this.raio);
+            ctx.lineTo(this.x + this.raio, this.y + this.raio);
+            ctx.lineTo(this.x - this.raio, this.y + this.raio);
             ctx.closePath();
         }
 
@@ -70,6 +81,7 @@ class Organismo {
         this.x += this.velocidadeX;
         this.y += this.velocidadeY;
 
+        // Colisão com as bordas do mundo circular (Placa de Petri)
         let distParaCentro = Math.hypot(this.x - centroX, this.y - centroY);
         if (distParaCentro > raioMundo - this.raio) {
             let angulo = Math.atan2(this.y - centroY, this.x - centroX);
@@ -82,14 +94,14 @@ class Organismo {
 }
 
 // ----------------------------------------------------
-// PREDADOR COM LIMITE DE TAMANHO
+// PREDADOR
 // ----------------------------------------------------
 class Predador {
     constructor() {
         this.x = centroX;
         this.y = centroY;
-        this.raio = 25; // O Predador tem tamanho 25
-        this.limiteBoca = 18; // REGRA: Não consegue comer presas com raio > 18
+        this.raio = 25; 
+        this.limiteBoca = 18; // Só come presas menores que 18
         this.velocidade = 1.2;
         this.anguloVisao = 0;
     }
@@ -113,7 +125,6 @@ class Predador {
         let maiorContraste = -1;
 
         for (let org of populacao) {
-            // NOVA REGRA DE SOBREVIVÊNCIA: Se for muito grande, o predador ignora!
             if (org.raio > this.limiteBoca) continue; 
 
             let contraste = diferencaCor(org.dna, corFundo);
@@ -142,7 +153,7 @@ class Predador {
 }
 
 // ----------------------------------------------------
-// LÓGICA DE EVOLUÇÃO E MUTAÇÕES ÓBVIAS
+// LÓGICA DE EVOLUÇÃO E LOOP
 // ----------------------------------------------------
 const formasDisponiveis = ['circulo', 'quadrado', 'triangulo'];
 
@@ -151,21 +162,18 @@ function criarPopulacaoInicial() {
     predador = new Predador();
     for (let i = 0; i < tamanhoPopulacao; i++) {
         let dnaAleatorio = Math.floor(Math.random() * 360);
-        let tamanhoBase = 10; // Nascem pequenos inicialmente
-        
         populacao.push(new Organismo(
             centroX + (Math.random() - 0.5) * 100,
             centroY + (Math.random() - 0.5) * 100,
             dnaAleatorio,
-            tamanhoBase,
-            'circulo' // Começam todos círculos
+            10, // Tamanho inicial
+            'circulo'
         ));
     }
 }
 
 function evoluir() {
     const taxaMutacao = parseInt(sliderMutacao.value);
-
     if (populacao.length === 0) return criarPopulacaoInicial();
 
     const sobreviventes = [...populacao];
@@ -174,24 +182,18 @@ function evoluir() {
     while (novaGeracao.length < tamanhoPopulacao) {
         const pai = sobreviventes[Math.floor(Math.random() * sobreviventes.length)];
         
-        // Herança de características
         let novoDna = pai.dna;
         let novoTamanho = pai.raio;
         let novoFormato = pai.formato;
 
-        // Se houver mutação, alteramos as características de forma BEM visual
         if (Math.random() * 100 < taxaMutacao) {
-            // 1. Mutação de Cor
             novoDna += (Math.random() - 0.5) * 80; 
             if (novoDna < 0) novoDna += 360;
             if (novoDna > 360) novoDna -= 360;
 
-            // 2. Mutação de Tamanho (podem crescer ou encolher)
-            novoTamanho += (Math.random() - 0.2) * 8; // Tende a variar, podendo crescer
-            // Limita o tamanho entre 6 (minúsculo) e 25 (gigante)
+            novoTamanho += (Math.random() - 0.2) * 8; 
             novoTamanho = Math.max(6, Math.min(25, novoTamanho));
 
-            // 3. Mutação de Formato (muda a geometria)
             novoFormato = formasDisponiveis[Math.floor(Math.random() * formasDisponiveis.length)];
         }
 
@@ -212,24 +214,38 @@ function evoluir() {
 function loop() {
     if (emExecucao) {
         const matizFundo = parseInt(sliderCorAmbiente.value);
+
+        // Sub-stepping: Se a velocidade for dupla, processamos a lógica 2 vezes
+        let passos = velocidadeDupla ? 2 : 1;
+        for (let i = 0; i < passos; i++) {
+            predador.atualizar(matizFundo);
+            populacao.forEach(org => org.atualizar());
+        }
+
+        // Renderização (Desenho) - ocorre sempre 1 vez para performance
         ctx.fillStyle = `hsl(${matizFundo}, 70%, 65%)`; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        predador.atualizar(matizFundo);
         predador.desenhar();
-
-        populacao.forEach(org => {
-            org.atualizar();
-            org.desenhar();
-        });
+        populacao.forEach(org => org.desenhar());
     }
     requestAnimationFrame(loop);
 }
 
+// ----------------------------------------------------
+// LISTENERS (CONTROLES)
+// ----------------------------------------------------
 btnPausar.onclick = () => {
     emExecucao = !emExecucao;
     btnPausar.innerText = emExecucao ? "Pausar Simulação" : "Retomar Simulação";
     btnPausar.style.backgroundColor = emExecucao ? "var(--danger-color)" : "#f59e0b";
+};
+
+// Lógica do botão de Velocidade 2x
+btnVelocidade.onclick = () => {
+    velocidadeDupla = !velocidadeDupla;
+    btnVelocidade.innerText = velocidadeDupla ? "Velocidade: 2x" : "Velocidade: 1x";
+    btnVelocidade.style.backgroundColor = velocidadeDupla ? "#4f46e5" : "#1e293b";
 };
 
 document.getElementById('btnProximaGen').onclick = () => {
@@ -242,5 +258,6 @@ document.getElementById('btnReiniciar').onclick = () => {
     criarPopulacaoInicial();
 };
 
+// Inicialização
 criarPopulacaoInicial();
 loop();
