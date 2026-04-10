@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Evolução Darwiniana</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+        <main class="container">
+        <section class="simulacao-area">
+            <canvas id="canvasEvolucao"></canvas>
+        </section>
+
+        <aside class="controles">
+            <div id="estatisticas" class="painel-destaque">
+                Geração Atual: <span id="gen-count" class="numero-grande">1</span>
+            </div>
+
+            <h2>Painel do Professor</h2>
+            
+            <div class="grupo-controle">
+                <label for="corAmbiente">Cor do Solo (Ambiente)</label>
+                <input type="range" id="corAmbiente" min="0" max="360" value="120">
+            </div>
+
+            <div class="grupo-controle">
+                <label for="taxaMutacao">Taxa de Mutação</label>
+                <input type="range" id="taxaMutacao" min="0" max="100" value="20">
+            </div>
+
+            <hr>
+
+            <div class="botoes-comando">
+                <button id="btnPausar" class="btn-alerta">Pausar Simulação</button>
+                <button id="btnProximaGen" class="btn-acao">Avançar 1 Geração</button>
+                <button id="btnReiniciar" class="btn-suave">Reiniciar</button>
+            </div>
+        </aside>
+    </main>
+
+
+    <script src="script.js"></script>
+</body>
+</html>

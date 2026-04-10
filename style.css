@@ -1,0 +1,160 @@
+/* ==========================================================================
+   1. VARIÁVEIS DE COR E TEMA
+   ========================================================================== */
+:root {
+    --bg-color: #e2e8f0;       /* Fundo da tela (cinza azulado escuro para contraste) */
+    --panel-bg: #ffffff;       /* Fundo do painel do professor */
+    --text-color: #1e293b;     /* Cor principal do texto */
+    --border-color: #cbd5e1;   /* Cor das bordas sutis */
+    --primary-color: #3b82f6;  /* Azul de destaque (usado no contador) */
+    --danger-color: #ef4444;   /* Vermelho (usado no botão de Pausa) */
+    --success-color: #10b981;  /* Verde (usado no botão de Avançar) */
+}
+
+/* ==========================================================================
+   2. RESET E ESTRUTURA BÁSICA
+   ========================================================================== */
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden; /* Impede barras de rolagem na tela inteira */
+}
+
+.container {
+    display: flex;
+    width: 95vw;
+    height: 90vh;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   3. ÁREA DA SIMULAÇÃO (O "MUNDINHO" / PLACA DE PETRI)
+   ========================================================================== */
+.simulacao-area {
+    width: 80vh;  /* Usamos 'vh' (viewport height) nos dois para manter um quadrado perfeito */
+    height: 80vh;
+    border-radius: 50%; /* O quadrado perfeito vira um círculo perfeito */
+    position: relative;
+    background-color: #ffffff;
+    border: 8px solid #ffffff; /* Borda grossa branca */
+    
+    /* Sombras para criar o efeito de "profundidade" de uma placa de Petri */
+    box-shadow: 
+        inset 0 0 50px rgba(0,0,0,0.3), /* Sombra interna */
+        0 10px 30px rgba(0,0,0,0.2);    /* Sombra externa */
+    overflow: hidden; /* Corta qualquer coisa que tente desenhar fora do círculo */
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%; /* Garante que o canvas também respeite o formato circular */
+}
+
+/* ==========================================================================
+   4. PAINEL DE CONTROLE DO PROFESSOR
+   ========================================================================== */
+.controles {
+    width: 380px;
+    background: var(--panel-bg);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    border: 1px solid var(--border-color);
+    max-height: 90vh;
+    overflow-y: auto; /* Adiciona rolagem interna se a tela do computador for pequena */
+}
+
+/* O Novo Destaque do Contador de Gerações */
+.painel-destaque {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+.numero-grande {
+    display: block;
+    font-size: 3rem; /* Fonte enorme para facilitar a leitura no projetor */
+    margin-top: 5px;
+    line-height: 1;
+}
+
+h2 { 
+    margin-top: 0; 
+    font-size: 1.8rem; 
+    color: #0f172a; 
+    text-align: center; 
+}
+
+/* ==========================================================================
+   5. SLIDERS (INPUT RANGE)
+   ========================================================================== */
+.grupo-controle label {
+    display: block;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #475569;
+}
+
+input[type="range"] {
+    width: 100%;
+    cursor: pointer;
+    height: 8px;
+    border-radius: 4px;
+    outline: none;
+    background-color: var(--border-color);
+}
+
+/* ==========================================================================
+   6. BOTÕES DE COMANDO
+   ========================================================================== */
+.botoes-comando {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.botoes-comando button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s; /* Transição suave para os efeitos de hover */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Efeitos de Interação nos Botões */
+.botoes-comando button:hover { 
+    transform: translateY(-2px); /* O botão dá uma leve "subida" quando o mouse passa */
+    filter: brightness(1.1);     /* Fica levemente mais claro */
+}
+.botoes-comando button:active { 
+    transform: translateY(0);    /* Volta ao lugar quando clicado (efeito de afundar) */
+}
+
+/* Cores específicas dos botões usando as variáveis criadas no topo */
+.btn-alerta { background-color: var(--danger-color); color: white; }
+.btn-acao { background-color: var(--success-color); color: white; }
+.btn-suave { background-color: var(--text-color); color: white; }
